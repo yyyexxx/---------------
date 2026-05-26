@@ -22,7 +22,7 @@ def setup_db():
 class TestDuplicateChecker:
     def test_no_duplicate(self):
         db = SessionLocal()
-        is_dup, existing = check_duplicate(db, "NEW_CODE", "NEW_NUM")
+        is_dup, existing = check_duplicate(db, "NEW_NUM")
         assert is_dup is False
         assert existing is None
         db.close()
@@ -37,21 +37,21 @@ class TestDuplicateChecker:
         db.close()
 
         db2 = SessionLocal()
-        is_dup, existing = check_duplicate(db2, "DUP_CODE", "DUP_NUM")
+        is_dup, existing = check_duplicate(db2, "DUP_NUM")
         assert is_dup is True
-        assert existing.invoice_code == "DUP_CODE"
+        assert existing.invoice_number == "DUP_NUM"
         db2.close()
 
-    def test_different_code_same_number(self):
-        """不同发票代码、相同号码不视为重复。"""
+    def test_same_number_is_duplicate(self):
+        """相同发票号码即为重复，无论发票代码是否相同。"""
         db = SessionLocal()
         save_invoice(db, {"invoice_code": "CODE_A", "invoice_number": "123",
                           "amount": 100.0})
         db.close()
 
         db2 = SessionLocal()
-        is_dup, existing = check_duplicate(db2, "CODE_B", "123")
-        assert is_dup is False
+        is_dup, existing = check_duplicate(db2, "123")
+        assert is_dup is True
         db2.close()
 
     def test_save_and_retrieve(self):

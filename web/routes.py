@@ -284,8 +284,9 @@ async def api_submit(
         "submitted_date": str(date.today()),
     }
 
-    # 重复检测
-    is_dup, existing = check_duplicate(db, data["invoice_code"], data["invoice_number"])
+    # 重复检测 — 使用原始识别值，防止用户修改表单绕过查重
+    _qn = task_data.get("invoice_number", "") or data["invoice_number"]
+    is_dup, existing = check_duplicate(db, _qn)
     if is_dup:
         return {"error": "duplicate", "existing_id": existing.id,
                 "message": f"发票 {data['invoice_code']}-{data['invoice_number']} 已在 {existing.created_at} 报销"}

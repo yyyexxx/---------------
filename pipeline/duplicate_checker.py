@@ -7,14 +7,11 @@ from sqlalchemy.orm import Session
 from db.models import Invoice
 
 
-def check_duplicate(db: Session, invoice_code: str, invoice_number: str) -> tuple[bool, Invoice | None]:
-    """检查发票代码+号码是否已存在。返回 (是否重复, 已有记录或None)。"""
+def check_duplicate(db: Session, invoice_number: str) -> tuple[bool, Invoice | None]:
+    """检查发票号码是否已存在。返回 (是否重复, 已有记录或None)。"""
     existing = (
         db.query(Invoice)
-        .filter(
-            Invoice.invoice_code == invoice_code,
-            Invoice.invoice_number == invoice_number,
-        )
+        .filter(Invoice.invoice_number == invoice_number)
         .first()
     )
     if existing:
